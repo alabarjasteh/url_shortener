@@ -5,11 +5,11 @@ import (
 	"github.com/alabarjasteh/url-shortener/memcache"
 )
 
-type Controller struct {
+type ShortenerService struct {
 	db       db.Interface
 	memcache memcache.Interface
 }
 
-func NewController(db db.Interface, cache memcache.Interface) *Controller {
-	return &Controller{db: db, memcache: cache}
+func NewShortenerService(db db.Interface, cache memcache.Interface) *ShortenerService {
+	return &ShortenerService{db: db, memcache: cache}
 }

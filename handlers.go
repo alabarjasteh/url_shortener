@@ -3,28 +3,27 @@ package main
 import (
 	"net/http"
 
-	"github.com/alabarjasteh/url-shortener/shortener"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 )
 
-func (c *Controller) CreateShortUrl(w http.ResponseWriter, req *http.Request) {
+func (s *ShortenerService) PostUrl(w http.ResponseWriter, req *http.Request) {
 	paste, err := DecodePostUrl(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	shortUrl := shortener.GenerateShortLink(paste.OriginalLink)
+	shortUrl := GenerateShortLink(paste.OriginalLink)
 
 	// write through
-	err = c.memcache.Set(shortUrl, paste.OriginalLink)
+	err = s.memcache.Set(shortUrl, paste.OriginalLink)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	err = c.db.Save(shortUrl, paste.OriginalLink)
+	err = s.db.Save(shortUrl, paste.OriginalLink)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -35,17 +34,17 @@ func (c *Controller) CreateShortUrl(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (c *Controller) HandleShortUrlRedirect(w http.ResponseWriter, req *http.Request) {
+func (s *ShortenerService) RedirectShortUrl(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	shortUrl := params["shortlink"]
-	originalUrl, err := c.memcache.Get(shortUrl)
+	originalUrl, err := s.memcache.Get(shortUrl)
 	if err == redis.Nil {
 		// does not exist in cache
 		// retrive from DB
-		originalUrl, err = c.db.Load(shortUrl)
+		originalUrl, err = s.db.Load(shortUrl)
 
 		// write back into cache
-		err2 := c.memcache.Set(shortUrl, originalUrl)
+		err2 := s.memcache.Set(shortUrl, originalUrl)
 
 		if err2 != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

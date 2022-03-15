@@ -3,7 +3,7 @@ CREATE DATABASE `alibaba_interview`;
 USE `alibaba_interview`;
 
 CREATE TABLE `pastes` (
-  `shortlink` char(7) NOT NULL,
+  `shortlink` char(8) NOT NULL,
   `originallink` varchar(255) NOT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY(`shortlink`)

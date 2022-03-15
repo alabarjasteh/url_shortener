@@ -4,22 +4,23 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/alabarjasteh/url-shortener/shortener"
 	"github.com/gorilla/mux"
 )
 
-func (c *Controller) MakeRoutes() *mux.Router {
+func MakeRoutes(svc shortener.Interface) *mux.Router {
 	router := mux.NewRouter()
-	router.Methods("POST").Path("/paste").HandlerFunc(c.CreateShortUrl)
-	router.Methods("GET").Path("/{shortlink}").HandlerFunc(c.HandleShortUrlRedirect)
+	router.Methods("POST").Path("/paste").HandlerFunc(svc.PostUrl)
+	router.Methods("GET").Path("/{shortlink}").HandlerFunc(svc.RedirectShortUrl)
 	return router
 }
 
 type postUrlRequest struct {
-	OriginalLink string `json:"originalLink"`
+	OriginalLink string `json:"original_link"`
 }
 
 type postUrlResponse struct {
-	ShortLink string `json:"shortLink"`
+	ShortLink string `json:"short_link"`
 }
 
 func DecodePostUrl(r *http.Request) (*postUrlRequest, error) {
