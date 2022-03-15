@@ -2,34 +2,30 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 
-	"github.com/alabarjasteh/url-shortener/handler"
-	"github.com/alabarjasteh/url-shortener/store"
-	"github.com/gin-gonic/gin"
+	"github.com/alabarjasteh/url-shortener/config"
+	"github.com/alabarjasteh/url-shortener/db"
+	"github.com/alabarjasteh/url-shortener/memcache"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Welcome to the URL Shortener API",
-		})
-	})
-
-	r.POST("/create-short-url", func(c *gin.Context) {
-		handler.CreateShortUrl(c)
-	})
-
-	r.GET("/:shortUrl", func(c *gin.Context) {
-		handler.HandleShortUrlRedirect(c)
-	})
-
-	// Note that store initialization happens here
-	store.InitializeStore()
-
-	err := r.Run(":9808")
+	configPath := "./config/config"
+	cfgFile, err := config.LoadConfig(configPath)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to start the web server - Error: %v", err))
+		log.Fatalf("LoadConfig: %v", err)
+	}
+	cfg, err := config.ParseConfig(cfgFile)
+	if err != nil {
+		log.Fatalf("ParseConfig: %v", err)
 	}
 
+	db := db.NewMySql(cfg)
+	cache := memcache.NewRedis(cfg)
+
+	controller := NewController(db, cache)
+	router := controller.MakeRoutes()
+
+	http.ListenAndServe(fmt.Sprintf(":%s", cfg.Server.Port), router)
 }

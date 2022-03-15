@@ -1,0 +1,18 @@
+server:
+  AppVersion: 0.1.0
+  Port: 3000
+
+mysql:
+  Host: localhost
+  Port: 3306
+  User: root
+  Password: 
+  Dbname: alibaba_interview
+  Driver: mysql
+
+redis:
+  Host: localhost
+  Port: 6379
+  User: root
+  Password:
+  DB: 0

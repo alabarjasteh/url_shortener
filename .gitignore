@@ -1,2 +1,4 @@
 dump.rdb
 .DS_Store
+config/config.yaml
+.vscode/launch.json
