@@ -6,6 +6,7 @@ import (
 
 	"github.com/alabarjasteh/url-shortener/shortener"
 	"github.com/go-kit/log"
+	"github.com/gorilla/mux"
 )
 
 type Middleware func(shortener.Interface) shortener.Interface
@@ -33,7 +34,9 @@ func (mw loggingMiddleware) PostUrl(w http.ResponseWriter, req *http.Request) {
 
 func (mw loggingMiddleware) RedirectShortUrl(w http.ResponseWriter, req *http.Request) {
 	defer func(begin time.Time) {
-		mw.logger.Log("method", "RedirectShortUrl", "took", time.Since(begin))
+		params := mux.Vars(req)
+		shortUrl := params["shortlink"]
+		mw.logger.Log("method", "RedirectShortUrl", "shortLink", shortUrl, "took", time.Since(begin))
 	}(time.Now())
 	mw.next.RedirectShortUrl(w, req)
 }
