@@ -41,17 +41,17 @@ func (s *ShortenerService) RedirectShortUrl(w http.ResponseWriter, req *http.Req
 	if err == redis.Nil {
 		// does not exist in cache
 		// retrive from DB
-		originalUrl, err = s.db.Load(shortUrl)
-
-		// write back into cache
-		err2 := s.memcache.Set(shortUrl, originalUrl)
-
-		if err2 != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		originalUrl, err := s.db.Load(shortUrl)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		// write back into cache
+		err = s.memcache.Set(shortUrl, originalUrl)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	} else if err != nil {

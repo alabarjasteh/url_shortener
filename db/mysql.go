@@ -64,7 +64,7 @@ func (m *MySql) Load(shortlink string) (string, error) {
 	var originalLink string
 	err := m.db.QueryRow("SELECT originallink FROM pastes WHERE shortlink = ?", shortlink).Scan(&originalLink)
 	if err != nil {
-		return "", err
+		return "", ErrNotFound
 	}
 	return originalLink, nil
 }

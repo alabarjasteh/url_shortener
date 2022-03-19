@@ -36,7 +36,6 @@ func NewRedis(c *config.Config) Interface {
 func (r *Redis) Set(shortUrl, originalUrl string) error {
 	err := r.Client.Set(ctx, shortUrl, originalUrl, 0).Err()
 	if err != nil {
-		// panic(fmt.Sprintf("Failed saving key url | Error: %v - shortUrl: %s - originalUrl: %s\n", err, shortUrl, originalUrl))
 		return err
 	}
 	return nil
@@ -45,7 +44,6 @@ func (r *Redis) Set(shortUrl, originalUrl string) error {
 func (r *Redis) Get(shortUrl string) (string, error) {
 	result, err := r.Client.Get(ctx, shortUrl).Result()
 	if err != nil {
-		// panic(fmt.Sprintf("Failed RetrieveInitialUrl url | Error: %v - shortUrl: %s\n", err, shortUrl))
 		return "", err
 	}
 	return result, nil
