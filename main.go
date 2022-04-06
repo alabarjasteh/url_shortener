@@ -8,13 +8,12 @@ import (
 	"github.com/alabarjasteh/url-shortener/config"
 	"github.com/alabarjasteh/url-shortener/db"
 	"github.com/alabarjasteh/url-shortener/memcache"
-	"github.com/alabarjasteh/url-shortener/shortener"
 	"github.com/go-kit/log"
 )
 
 func main() {
 	configPath := "./config/config"
-	cfgFile, err := config.LoadConfig(configPath)
+	cfgFile, err := config.Load(configPath)
 	if err != nil {
 		panic(err)
 	}
@@ -31,15 +30,22 @@ func main() {
 	{
 		logger = log.NewLogfmtLogger(file)
 		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
+		logger = log.With(logger, "caller", log.DefaultCaller)
 	}
 
-	db := db.NewMySql(cfg)
-	cache := memcache.NewRedis(cfg)
+	mysql := db.NewMySql(cfg)
+	redis := memcache.NewRedis(cfg)
 
-	var svc shortener.Interface
-	svc = NewShortenerService(db, cache)
-	svc = LoggingMiddleware(logger)(svc)
-	router := MakeRoutes(svc)
+	var svc Shortener
+	{
+		svc = NewShortenerService()
+		svc = LoggingMiddleware(logger)(svc)
+	}
 
-	http.ListenAndServe(fmt.Sprintf(":%s", cfg.Server.Port), router)
+	var h http.Handler
+	{
+		h = MakeHTTPHandler(svc, log.With(logger, "component", "HTTP"), mysql, redis)
+	}
+
+	http.ListenAndServe(fmt.Sprintf(":%s", cfg.Server.Port), h)
 }

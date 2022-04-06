@@ -14,7 +14,7 @@ type MySql struct {
 	db *sql.DB
 }
 
-func NewMySql(c *config.Config) Interface {
+func NewMySql(c *config.Config) *MySql {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", c.Mysql.User, c.Mysql.Password, c.Mysql.Host, c.Mysql.Port, c.Mysql.Dbname)
 	db, err := sql.Open(c.Mysql.Driver, dataSourceName)
 	if err != nil {
@@ -29,7 +29,7 @@ func NewMySql(c *config.Config) Interface {
 	}
 }
 
-func (m *MySql) Save(shortlink, originallink string) error {
+func (m *MySql) Store(shortlink, originallink string) error {
 	var exists int
 	err := m.db.QueryRow("SELECT EXISTS( SELECT * FROM pastes WHERE BINARY shortlink = ?)", shortlink).Scan(&exists)
 	if err != nil {
@@ -64,7 +64,7 @@ func (m *MySql) Load(shortlink string) (string, error) {
 	var originalLink string
 	err := m.db.QueryRow("SELECT originallink FROM pastes WHERE shortlink = ?", shortlink).Scan(&originalLink)
 	if err != nil {
-		return "", ErrNotFound
+		return "", err
 	}
 	return originalLink, nil
 }

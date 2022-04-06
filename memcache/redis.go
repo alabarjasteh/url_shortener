@@ -14,7 +14,7 @@ type Redis struct {
 
 var ctx = context.Background() //TODO
 
-func NewRedis(c *config.Config) Interface {
+func NewRedis(c *config.Config) *Redis {
 	addr := fmt.Sprintf("%s:%s", c.Redis.Host, c.Redis.Port)
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     addr,

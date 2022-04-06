@@ -34,7 +34,7 @@ type RedisConfig struct {
 	DB       int
 }
 
-func LoadConfig(filename string) (*viper.Viper, error) {
+func Load(filename string) (*viper.Viper, error) {
 	v := viper.New()
 
 	v.SetConfigName(filename)

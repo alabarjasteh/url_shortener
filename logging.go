@@ -1,18 +1,16 @@
 package main
 
 import (
-	"net/http"
+	"context"
 	"time"
 
-	"github.com/alabarjasteh/url-shortener/shortener"
 	"github.com/go-kit/log"
-	"github.com/gorilla/mux"
 )
 
-type Middleware func(shortener.Interface) shortener.Interface
+type Middleware func(Shortener) Shortener
 
 func LoggingMiddleware(logger log.Logger) Middleware {
-	return func(next shortener.Interface) shortener.Interface {
+	return func(next Shortener) Shortener {
 		return &loggingMiddleware{
 			next:   next,
 			logger: logger,
@@ -21,22 +19,20 @@ func LoggingMiddleware(logger log.Logger) Middleware {
 }
 
 type loggingMiddleware struct {
-	next   shortener.Interface
+	next   Shortener
 	logger log.Logger
 }
 
-func (mw loggingMiddleware) PostUrl(w http.ResponseWriter, req *http.Request) {
+func (mw loggingMiddleware) PostURL(ctx context.Context, repo Repository, cache Cache, originalURL string) (string, error) {
 	defer func(begin time.Time) {
-		mw.logger.Log("method", "PostUrl", "took", time.Since(begin))
+		mw.logger.Log("method", "PostURL", "took", time.Since(begin))
 	}(time.Now())
-	mw.next.PostUrl(w, req)
+	return mw.next.PostURL(ctx, repo, cache, originalURL)
 }
 
-func (mw loggingMiddleware) RedirectShortUrl(w http.ResponseWriter, req *http.Request) {
+func (mw loggingMiddleware) GetURL(ctx context.Context, repo Repository, cache Cache, shortURL string) (string, error) {
 	defer func(begin time.Time) {
-		params := mux.Vars(req)
-		shortUrl := params["shortlink"]
-		mw.logger.Log("method", "RedirectShortUrl", "shortLink", shortUrl, "took", time.Since(begin))
+		mw.logger.Log("method", "GetURL", "took", time.Since(begin))
 	}(time.Now())
-	mw.next.RedirectShortUrl(w, req)
+	return mw.next.GetURL(ctx, repo, cache, shortURL)
 }
