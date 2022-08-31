@@ -38,7 +38,7 @@ func main() {
 
 	var svc Shortener
 	{
-		svc = NewShortenerService()
+		svc = NewShortenerService(redis, mysql)
 		svc = LoggingMiddleware(logger)(svc)
 	}
 

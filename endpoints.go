@@ -38,7 +38,7 @@ func (r getURLResponse) redirect() string { return r.OriginalURL }
 func MakePostURLEndpoint(s Shortener, repo Repository, cache Cache) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(postURLRequest)
-		shortURL, err := s.PostURL(ctx, repo, cache, req.OriginalURL)
+		shortURL, err := s.PostURL(ctx, req.OriginalURL)
 		return postURLResponse{ShortURL: shortURL, Err: err}, nil
 	}
 }
@@ -46,7 +46,7 @@ func MakePostURLEndpoint(s Shortener, repo Repository, cache Cache) endpoint.End
 func MakeGetURLEndpoint(s Shortener, repo Repository, cache Cache) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(getURLRequest)
-		originalURL, err := s.GetURL(ctx, repo, cache, req.ShortURL)
+		originalURL, err := s.GetURL(ctx, req.ShortURL)
 		return getURLResponse{OriginalURL: originalURL, Err: err}, nil
 	}
 }
