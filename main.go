@@ -8,6 +8,7 @@ import (
 	"github.com/alabarjasteh/url-shortener/config"
 	"github.com/alabarjasteh/url-shortener/db"
 	"github.com/alabarjasteh/url-shortener/memcache"
+	urlshortenersvc "github.com/alabarjasteh/url-shortener/urlshortener"
 	"github.com/go-kit/log"
 )
 
@@ -36,15 +37,15 @@ func main() {
 	mysql := db.NewMySql(cfg)
 	redis := memcache.NewRedis(cfg)
 
-	var svc Shortener
+	var svc urlshortenersvc.Shortener
 	{
-		svc = NewShortenerService(redis, mysql)
-		svc = LoggingMiddleware(logger)(svc)
+		svc = urlshortenersvc.NewShortenerService(redis, mysql)
+		svc = urlshortenersvc.LoggingMiddleware(logger)(svc)
 	}
 
 	var h http.Handler
 	{
-		h = MakeHTTPHandler(svc, log.With(logger, "component", "HTTP"), mysql, redis)
+		h = urlshortenersvc.MakeHTTPHandler(svc, log.With(logger, "component", "HTTP"), mysql, redis)
 	}
 
 	http.ListenAndServe(fmt.Sprintf(":%s", cfg.Server.Port), h)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/alabarjasteh/url-shortener/config"
+	urlshortenersvc "github.com/alabarjasteh/url-shortener/urlshortener"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -44,6 +45,9 @@ func (r *Redis) Set(shortUrl, originalUrl string) error {
 func (r *Redis) Get(shortUrl string) (string, error) {
 	result, err := r.Client.Get(ctx, shortUrl).Result()
 	if err != nil {
+		if err == redis.Nil {
+			return "", urlshortenersvc.ErrCacheMiss
+		}
 		return "", err
 	}
 	return result, nil

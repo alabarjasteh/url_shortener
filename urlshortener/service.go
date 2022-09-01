@@ -1,7 +1,8 @@
-package main
+package urlshortenersvc
 
 import (
 	"context"
+	"errors"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -20,6 +21,8 @@ type (
 		Set(shortLink, originalLink string) error
 	}
 )
+
+var ErrCacheMiss = errors.New("record not found in cash")
 
 // concrete object that implements Shortener interface
 type shortenerService struct {
