@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/alabarjasteh/url-shortener/config"
-	"github.com/alabarjasteh/url-shortener/db"
-	"github.com/alabarjasteh/url-shortener/memcache"
+	"github.com/alabarjasteh/url-shortener/mysqldb"
+	"github.com/alabarjasteh/url-shortener/rediscache"
 	urlshortenersvc "github.com/alabarjasteh/url-shortener/urlshortener"
 	"github.com/go-kit/log"
 )
@@ -34,8 +34,8 @@ func main() {
 		logger = log.With(logger, "caller", log.DefaultCaller)
 	}
 
-	mysql := db.NewMySql(cfg)
-	redis := memcache.NewRedis(cfg)
+	mysql := mysqldb.New(&cfg.Mysql)
+	redis := rediscache.New(&cfg.Redis)
 
 	var svc urlshortenersvc.Shortener
 	{

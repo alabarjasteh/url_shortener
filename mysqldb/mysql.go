@@ -1,4 +1,4 @@
-package db
+package mysqldb
 
 import (
 	"database/sql"
@@ -14,9 +14,9 @@ type MySql struct {
 	db *sql.DB
 }
 
-func NewMySql(c *config.Config) *MySql {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", c.Mysql.User, c.Mysql.Password, c.Mysql.Host, c.Mysql.Port, c.Mysql.Dbname)
-	db, err := sql.Open(c.Mysql.Driver, dataSourceName)
+func New(c *config.MysqlConfig) *MySql {
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", c.User, c.Password, c.Host, c.Port, c.Dbname)
+	db, err := sql.Open(c.Driver, dataSourceName)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-package memcache
+package rediscache
 
 import (
 	"context"
@@ -15,12 +15,12 @@ type Redis struct {
 
 var ctx = context.Background() //TODO
 
-func NewRedis(c *config.Config) *Redis {
-	addr := fmt.Sprintf("%s:%s", c.Redis.Host, c.Redis.Port)
+func New(c *config.RedisConfig) *Redis {
+	addr := fmt.Sprintf("%s:%s", c.Host, c.Port)
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     addr,
-		Password: c.Redis.Password,
-		DB:       c.Redis.DB,
+		Password: c.Password,
+		DB:       c.DB,
 	})
 
 	pong, err := redisClient.Ping(ctx).Result()
