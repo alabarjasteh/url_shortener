@@ -3,8 +3,6 @@ package urlshortenersvc
 import (
 	"context"
 	"errors"
-
-	"github.com/go-redis/redis/v8"
 )
 
 type (
@@ -57,7 +55,7 @@ func (svc *shortenerService) PostURL(ctx context.Context, originalURL string) (s
 func (svc *shortenerService) GetURL(ctx context.Context, shortURL string) (string, error) {
 	// cache-aside
 	originalURL, err := svc.cache.Get(shortURL)
-	if err == redis.Nil {
+	if errors.Is(err, ErrCacheMiss) {
 		// does not exist in cache
 		// retrive from DB
 		originalURL, err = svc.repo.Load(shortURL)
